@@ -1,0 +1,41 @@
+heat_template_version: 2013-05-23
+
+description: Simple template to deploy a single compute instance
+
+parameters:
+  image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+  flavor:
+    type: string
+    label: Flavor
+    description: Type of instance (flavor) to be used
+  key:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+  traffic_network_name:
+    type: string
+    label: Traffic network name or ID
+    description: Network to attach instance to.
+  mgmt_network_name:
+    type: string
+    label: Management network name or ID
+    description: Network to attach instance to.
+  server_group:
+    type: string
+    label: Server Group
+    description: Anti-affinity server group
+
+resources:
+  vnfc:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - network: { get_param: mgmt_network_name }
+        - network: { get_param: traffic_network_name }
+      scheduler_hints: { group: { get_param: server_group } }

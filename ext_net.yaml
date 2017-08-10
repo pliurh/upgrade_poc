@@ -1,0 +1,26 @@
+heat_template_version: 2013-05-23
+
+description: Simple template to deploy a single compute instance
+
+parameters:
+  ext_network_name:
+    type: string
+    label: External network name or ID
+    description: External network
+    default: ext_net
+  ext_network_cidr:
+    type: string
+    default: 192.168.24.0/24
+
+resources:
+  ext_network_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_param: ext_network_name }
+      cidr: { get_param: ext_network_cidr }
+  ext_router:
+    type: OS::Neutron::Router
+    properties:
+      name: ext_router
+      external_gateway_info: 
+        network: { get_param: ext_network_name }

@@ -1,0 +1,49 @@
+heat_template_version: 2013-05-23
+
+description: Simple template to deploy a single compute instance
+
+parameters:
+  traffic_network_name:
+    type: string
+    label: Traffic network name or ID
+    description: Network to attach instance to.
+  mgmt_network_name:
+    type: string
+    label: Management network name or ID
+    description: Network to attach instance to.
+  traffic_network_cidr:
+    type: string
+    default: 192.168.0.0/24
+  mgmt_network_cidr:
+    type: string
+
+
+resources:
+  traffic_network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: traffic_network_name }
+
+  traffic_network_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: traffic_network }
+      cidr: { get_param: traffic_network_cidr }
+
+  mgmt_network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: mgmt_network_name }
+
+  mgmt_network_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: mgmt_network }
+      cidr: { get_param: mgmt_network_cidr }
+
+
+outputs:
+  mgmt_network: 
+    value: { get_resource: mgmt_network }
+  traffic_network:
+    value: { get_resource: traffic_network }

@@ -1,0 +1,13 @@
+resource_registry:
+  Lib::VNF::Network: network.yaml
+  Lib::VNF::Vnfc: vnfc.yaml
+
+parameter_defaults:
+  image: cirros
+  flavor: m1.tiny
+  key: my_key
+  traffic_network_name: traffic_network_a
+  mgmt_network_name: mgmt_network_a
+  traffic_network_cidr: 192.168.0.0/24
+  mgmt_network_cidr: 10.0.0.0/24
+  
