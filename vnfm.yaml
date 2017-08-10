@@ -3,42 +3,120 @@ heat_template_version: 2013-05-23
 description: Simple template to deploy a single compute instance
 
 parameters:
+  name: 
+    type: string
+    label: Instance name or ID
+    description: Instance name
+    default: vnfm
   image:
     type: string
     label: Image name or ID
     description: Image to be used for compute instance
+    default: cirros
   flavor:
     type: string
     label: Flavor
     description: Type of instance (flavor) to be used
+    default: m1.tiny
   key:
     type: string
     label: Key name
     description: Name of key-pair to be used for compute instance
+    default: my_key
   mgmt_network_name:
     type: string
     label: Management network name or ID
+    default: mgmt_net
   ext_network_name:
     type: string
     label: Management network name or ID
+    default: ext_net
+  mgmt_network_cidr:
+    type: string
+    default: 192.168.100.0/24
 
 resources:
-  vnfm:
+  mgmt_network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: mgmt_network_name }
+
+  mgmt_network_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: mgmt_network }
+      cidr: { get_param: mgmt_network_cidr }
+  
+  ext_router:
+    type: OS::Neutron::Router
+    properties:
+      name: ext_router
+      external_gateway_info: 
+        network: { get_param: ext_network_name }
+
+  ext_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: ext_router }
+      subnet_id: { get_resource: mgmt_network_subnet }
+
+
+  # mgmt_port_a:
+  #   type: OS::Neutron::Port
+  #   properties:
+  #     network_id: { get_parameter: mgmt_network_name }
+
+  mgmt_floating_ip_a:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: ext_network_name }
+
+  # mgmt_port_b:
+  #   type: OS::Neutron::Port
+  #   properties:
+  #     network_id: { get_parameter: mgmt_network_name }
+
+  mgmt_floating_ip_b:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: ext_network_name }
+
+  vnfm_a:
     type: OS::Nova::Server
     properties:
       image: { get_param: image }
       flavor: { get_param: flavor }
       key_name: { get_param: key }
       networks:
-        - port: { get_resource: mgmt_port }
+        - subnet: { get_resource: mgmt_network_subnet }
 
-  mgmt_port:
-    type: OS::Neutron::Port
+  association_a:
+    type: OS::Nova::FloatingIPAssociation
+    depends_on: [ext_router_interface]
     properties:
-      network_id: { get_parameter: mgmt_network_name }
+      floating_ip: { get_resource: mgmt_floating_ip_a }
+      server_id: { get_resource: vnfm_a }
 
-  mgmt_floating_ip:
-    type: OS::Neutron::FloatingIP
+  vnfm_b:
+    type: OS::Nova::Server
     properties:
-      floating_network: { get_param: public_net }
-      port_id: { get_resource: mgmt_port }
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - subnet: { get_resource: mgmt_network_subnet }
+
+  association_b:
+    type: OS::Nova::FloatingIPAssociation
+    depends_on: [ext_router_interface]
+    properties:
+      floating_ip: { get_resource: mgmt_floating_ip_b }
+      server_id: { get_resource: vnfm_b }
+
+outputs:
+  mgmt_ip_a:
+    description: IP of the server
+    value: { get_attr: [ mgmt_floating_ip_a, floating_ip_address ] }
+  mgmt_ip_b:
+    description: IP of the server
+    value: { get_attr: [ mgmt_floating_ip_b, floating_ip_address ] }
