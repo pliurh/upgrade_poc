@@ -22,4 +22,7 @@ if ! openstack flavor list|grep -q my.tiny.vnf ; then
     openstack flavor create --ram 512 --disk 10 --vcpus 1 m1.tiny.vnf
 fi
 
+nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+
 # openstack stack create -t --file vnfm.yaml vnfm 

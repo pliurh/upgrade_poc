@@ -37,13 +37,14 @@ parameters:
 
 resources:
 
-  vnfm_init:
+  vnfm_a_init:
     type: OS::Heat::SoftwareConfig
     properties:
       group: ungrouped
       config: |
         #!/bin/sh
-        echo "The three is bar" > /tmp/three
+        source /home/centos/overcloudrc
+        openstack stack create -t vnf.yaml -e lib/env_a.yaml --wait vnf_a
 
   mgmt_network:
     type: OS::Neutron::Net
@@ -100,7 +101,7 @@ resources:
         - subnet: { get_resource: mgmt_network_subnet }
       user_data_format: RAW
       user_data:
-        get_resource: vnfm_init
+        get_resource: vnfm_a_init
 
   association_a:
     type: OS::Nova::FloatingIPAssociation

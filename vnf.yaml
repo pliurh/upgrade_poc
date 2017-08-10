@@ -7,12 +7,12 @@ parameters:
     type: string
     label: Image name or ID
     description: Image to be used for compute instance
-    default: cirros
+    default: centos
   flavor:
     type: string
     label: Flavor
     description: Type of instance (flavor) to be used
-    default: m1.tiny
+    default: m1.tiny.vnf
   key:
     type: string
     label: Key name
@@ -27,23 +27,17 @@ parameters:
     type: string
     label: Management network name or ID
     description: Network to attach instance to.
-    default: mgmt_network_0
+    default: mgmt_net
   traffic_network_cidr:
     type: string
     default: 192.168.0.0/24
-  mgmt_network_cidr:
-    type: string
-    default: 10.0.0.0/24
-
 
 resources:
   vnf_network:
     type: Lib::VNF::Network
     properties:
       traffic_network_name: { get_param: traffic_network_name }
-      mgmt_network_name: { get_param: mgmt_network_name }
       traffic_network_cidr: { get_param: traffic_network_cidr }
-      mgmt_network_cidr: { get_param: mgmt_network_cidr }
   svrgrp: 
     type: OS::Nova::ServerGroup 
     properties: 
@@ -56,7 +50,7 @@ resources:
       key: { get_param: key }
       flavor: { get_param: flavor }
       image: { get_param: image }
-      mgmt_network_name: { get_attr: [vnf_network, mgmt_network] }
+      mgmt_network_name: { get_param: mgmt_network_name }
       traffic_network_name: { get_attr: [vnf_network, traffic_network] }
       server_group: { get_resource: svrgrp }
 
@@ -66,6 +60,6 @@ resources:
       key: { get_param: key }
       flavor: { get_param: flavor }
       image: { get_param: image }
-      mgmt_network_name: { get_attr: [vnf_network, mgmt_network] }
+      mgmt_network_name: { get_param: mgmt_network_name }
       traffic_network_name: { get_attr: [vnf_network, traffic_network] }
       server_group: { get_resource: svrgrp } 

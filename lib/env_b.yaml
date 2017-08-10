@@ -3,11 +3,6 @@ resource_registry:
   Lib::VNF::Vnfc: vnfc.yaml
 
 parameter_defaults:
-  image: cirros
-  flavor: m1.tiny
-  key: my_key
   traffic_network_name: traffic_network_b
-  mgmt_network_name: mgmt_network_b
-  traffic_network_cidr: 192.168.1.0/24
-  mgmt_network_cidr: 10.0.1.0/24
+  traffic_network_cidr: 192.168.10.0/24
   

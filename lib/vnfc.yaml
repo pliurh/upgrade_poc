@@ -7,14 +7,17 @@ parameters:
     type: string
     label: Image name or ID
     description: Image to be used for compute instance
+    default: centos
   flavor:
     type: string
     label: Flavor
     description: Type of instance (flavor) to be used
+    default: m1.tiny.vnf
   key:
     type: string
     label: Key name
     description: Name of key-pair to be used for compute instance
+    default: my_key
   traffic_network_name:
     type: string
     label: Traffic network name or ID
