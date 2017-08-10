@@ -44,7 +44,10 @@ resources:
       config: |
         #!/bin/sh
         source /home/centos/overcloudrc
-        openstack stack create -t vnf.yaml -e lib/env_a.yaml --wait vnf_a
+        set -x
+        git clone https://github.com/pliurh/upgrade_poc.git
+        openstack stack create -t vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf_a
+        openstack stack create -t vnf.yaml -e /home/centos/upgrade_poc/lib/env_b.yaml --wait vnf_b
 
   mgmt_network:
     type: OS::Neutron::Net
@@ -56,6 +59,7 @@ resources:
     properties:
       network_id: { get_resource: mgmt_network }
       cidr: { get_param: mgmt_network_cidr }
+      dns_nameservers: [10.10.160.1]
   
   ext_router:
     type: OS::Neutron::Router
