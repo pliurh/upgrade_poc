@@ -43,9 +43,13 @@ resources:
       group: ungrouped
       config: |
         #!/bin/sh
-        source /home/centos/overcloudrc
         set -x
+        sudo yum install -y https://www.rdoproject.org/repos/rdo-release.rpm
+        sudo yum search openstack| grep client
+        sudo yum install git python2-heatclient python-openstackclient -y
+
         git clone https://github.com/pliurh/upgrade_poc.git
+        source /home/centos/upgrade_poc/overcloudrc
         openstack stack create -t vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf_a
         openstack stack create -t vnf.yaml -e /home/centos/upgrade_poc/lib/env_b.yaml --wait vnf_b
 
