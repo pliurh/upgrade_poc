@@ -95,7 +95,7 @@ resources:
     properties:
       floating_network: { get_param: ext_network_name }
 
-  vnfm_a:
+  vnfm-a:
     type: OS::Nova::Server
     properties:
       image: { get_param: image }
@@ -114,7 +114,7 @@ resources:
       floating_ip: { get_resource: mgmt_floating_ip_a }
       server_id: { get_resource: vnfm_a }
 
-  vnfm_b:
+  vnfm-b:
     type: OS::Nova::Server
     properties:
       image: { get_param: image }

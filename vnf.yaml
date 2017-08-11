@@ -33,33 +33,39 @@ parameters:
     default: 192.168.0.0/24
 
 resources:
-  vnf_network:
-    type: Lib::VNF::Network
+  traffic_network:
+    type: OS::Neutron::Net
     properties:
-      traffic_network_name: { get_param: traffic_network_name }
-      traffic_network_cidr: { get_param: traffic_network_cidr }
+      name: { get_param: traffic_network_name }
+  traffic_network_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: traffic_network }
+      cidr: { get_param: traffic_network_cidr }
   svrgrp: 
     type: OS::Nova::ServerGroup 
     properties: 
       name: svrgrp 
       policies: [ 'anti-affinity' ] 
-
-  vnfc_1:
-    type: Lib::VNF::Vnfc
+  vnfc-1:
+    type: OS::Nova::Server
+    depends_on: [traffic_network_subnet]
     properties:
-      key: { get_param: key }
-      flavor: { get_param: flavor }
       image: { get_param: image }
-      mgmt_network_name: { get_param: mgmt_network_name }
-      traffic_network_name: { get_attr: [vnf_network, traffic_network] }
-      server_group: { get_resource: svrgrp }
-
-  vnfc_2:
-    type: Lib::VNF::Vnfc
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - network: { get_param: mgmt_network_name }
+        - network: { get_resource: traffic_network }
+      scheduler_hints: { group: { get_resource: svrgrp } }
+  vnfc-2:
+    type: OS::Nova::Server
+    depends_on: [traffic_network_subnet]
     properties:
-      key: { get_param: key }
-      flavor: { get_param: flavor }
       image: { get_param: image }
-      mgmt_network_name: { get_param: mgmt_network_name }
-      traffic_network_name: { get_attr: [vnf_network, traffic_network] }
-      server_group: { get_resource: svrgrp } 
+      flavor: { get_param: flavor }
+      key_name: { get_param: key }
+      networks:
+        - network: { get_param: mgmt_network_name }
+        - network: { get_resource: traffic_network }
+      scheduler_hints: { group: { get_resource: svrgrp } }
