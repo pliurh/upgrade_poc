@@ -48,6 +48,7 @@ resources:
         git clone https://github.com/pliurh/upgrade_poc.git  /home/centos/upgrade_poc
         source /home/centos/upgrade_poc/overcloudrc
         openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf_a
+        python /home/centos/upgrade_poc/gen_data_file.py vnf_a > /home/centos/upgrade_poc/data_file
 
   mgmt_network:
     type: OS::Neutron::Net

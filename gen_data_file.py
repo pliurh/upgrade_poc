@@ -34,14 +34,21 @@ floating_ip = nova.floating_ips.find(instance_id=server.id)
 
 data['vnfm_name'] = server.human_id
 data['vnfm_floating_ip'] = floating_ip.ip
-# data['vnf_name'] = sys.argv[0]
-data['vnf_name'] = 'vnf_a'
+data['vnf_name'] = sys.argv[0]
+#data['vnf_name'] = 'vnf_a'
 data['vnfcs'] = {}
+data['vnfc_mgmt_ip'] = {}
+data['vnfc_host'] = {}
 
 heat = heat_client.Client('1', session=sess)
 for i in heat.stacks.list():
     if i.stack_name == data['vnf_name']:
         for r in heat.resources.list(i.id):
-            if (r.resource_type == 'Lib::VNF::Vnfc'):
+            if (r.resource_type == 'OS::Nova::Server'):
                 data['vnfcs'][r.resource_name] = r.physical_resource_id
-                server = nova.server.find(id = r.physical_resource_id)
+                 
+                server = nova.servers.find(id = r.physical_resource_id) 
+                data['vnfc_mgmt_ip'][r.resource_name] = server.networks['mgmt_net']
+                data['vnfc_host'][r.resource_name]  = \
+                    server.__dict__['OS-EXT-SRV-ATTR:host'].split('.')[0]
+print data
