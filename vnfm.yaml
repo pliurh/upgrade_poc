@@ -47,8 +47,8 @@ resources:
         mkdir /home/centos/upgrade_poc
         git clone https://github.com/pliurh/upgrade_poc.git  /home/centos/upgrade_poc
         source /home/centos/upgrade_poc/overcloudrc
-        openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf_a
-        python /home/centos/upgrade_poc/gen_data_file.py vnf_a > /home/centos/upgrade_poc/data_file
+        openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf-a
+        python /home/centos/upgrade_poc/gen_data_file.py vnf-a > /home/centos/upgrade_poc/data_file
 
   mgmt_network:
     type: OS::Neutron::Net
@@ -113,7 +113,7 @@ resources:
     depends_on: [ext_router_interface]
     properties:
       floating_ip: { get_resource: mgmt_floating_ip_a }
-      server_id: { get_resource: vnfm_a }
+      server_id: { get_resource: vnfm-a }
 
   vnfm-b:
     type: OS::Nova::Server
@@ -129,7 +129,7 @@ resources:
     depends_on: [ext_router_interface]
     properties:
       floating_ip: { get_resource: mgmt_floating_ip_b }
-      server_id: { get_resource: vnfm_b }
+      server_id: { get_resource: vnfm-b }
 
 outputs:
   mgmt_ip_a:

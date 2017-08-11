@@ -2,23 +2,22 @@
 
 import socket
 import sys
+import json
 
 from keystoneauth1 import loading
 from keystoneauth1 import session
 from novaclient import client as nova_client
 from heatclient import client as heat_client
 
-HOSTNAME = socket.gethostname()
-
+HOSTNAME = socket.gethostname().split('.')[0]
 OS_USERNAME = "admin"
 OS_PASSWORD = "9BhbZq92WEQ7sPr6AhmTm6pQv"
 OS_PROJECT_NAME = "admin"
 OS_AUTH_URL = "http://192.168.24.8:5000/v2.0"
 NOVA_VERSION = "2"
-HEAT_VERSION = '2'
+HEAT_VERSION = '1'
 
-data = {}.fromkeys(['vnfm_name', 'vnfm_floating_ip', 'vnf_name'
-                   'vnfcs', 'vnfc_mgmt_ip', 'vnfc_host'])
+data = {}
 
 loader = loading.get_plugin_loader('password')
 auth = loader.load_from_options(auth_url=OS_AUTH_URL,
@@ -34,7 +33,7 @@ floating_ip = nova.floating_ips.find(instance_id=server.id)
 
 data['vnfm_name'] = server.human_id
 data['vnfm_floating_ip'] = floating_ip.ip
-data['vnf_name'] = sys.argv[0]
+data['vnf_name'] = sys.argv[1]
 #data['vnf_name'] = 'vnf_a'
 data['vnfcs'] = {}
 data['vnfc_mgmt_ip'] = {}
@@ -48,7 +47,7 @@ for i in heat.stacks.list():
                 data['vnfcs'][r.resource_name] = r.physical_resource_id
                  
                 server = nova.servers.find(id = r.physical_resource_id) 
-                data['vnfc_mgmt_ip'][r.resource_name] = server.networks['mgmt_net']
+                data['vnfc_mgmt_ip'][r.resource_name] = server.networks['mgmt_net'][0]
                 data['vnfc_host'][r.resource_name]  = \
                     server.__dict__['OS-EXT-SRV-ATTR:host'].split('.')[0]
-print data
+print json.dumps(data)
