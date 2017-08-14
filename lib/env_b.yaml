@@ -1,8 +1,0 @@
-resource_registry:
-  Lib::VNF::Network: network.yaml
-  Lib::VNF::Vnfc: vnfc.yaml
-
-parameter_defaults:
-  traffic_network_name: traffic_network_b
-  traffic_network_cidr: 192.168.10.0/24
-  

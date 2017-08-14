@@ -48,8 +48,22 @@ resources:
         rm -rf /home/centos/upgrade_poc/*
         git clone https://github.com/pliurh/upgrade_poc.git  /home/centos/upgrade_poc
         source /home/centos/upgrade_poc/overcloudrc
-        openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf-a
+        openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env.yaml --wait vnf-a
         python /home/centos/upgrade_poc/gen_data_file.py vnf-a > /home/centos/upgrade_poc/data_file
+
+  vnfm_b_init:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: ungrouped
+      config: |
+        #!/bin/sh
+        set -x
+        mkdir /home/centos/upgrade_poc
+        rm -rf /home/centos/upgrade_poc/*
+        git clone https://github.com/pliurh/upgrade_poc.git  /home/centos/upgrade_poc
+        source /home/centos/upgrade_poc/overcloudrc
+        openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env.yaml --wait vnf-b
+        python /home/centos/upgrade_poc/gen_data_file.py vnf-b > /home/centos/upgrade_poc/data_file
 
   mgmt_network:
     type: OS::Neutron::Net
@@ -76,21 +90,10 @@ resources:
       router_id: { get_resource: ext_router }
       subnet_id: { get_resource: mgmt_network_subnet }
 
-
-  # mgmt_port_a:
-  #   type: OS::Neutron::Port
-  #   properties:
-  #     network_id: { get_parameter: mgmt_network_name }
-
   mgmt_floating_ip_a:
     type: OS::Neutron::FloatingIP
     properties:
       floating_network: { get_param: ext_network_name }
-
-  # mgmt_port_b:
-  #   type: OS::Neutron::Port
-  #   properties:
-  #     network_id: { get_parameter: mgmt_network_name }
 
   mgmt_floating_ip_b:
     type: OS::Neutron::FloatingIP
@@ -124,6 +127,9 @@ resources:
       key_name: { get_param: key }
       networks:
         - subnet: { get_resource: mgmt_network_subnet }
+      user_data_format: RAW
+      user_data:
+        get_resource: vnfm_b_init
 
   association_b:
     type: OS::Nova::FloatingIPAssociation
