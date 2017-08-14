@@ -45,6 +45,7 @@ resources:
         #!/bin/sh
         set -x
         mkdir /home/centos/upgrade_poc
+        rm -rf /home/centos/upgrade_poc/*
         git clone https://github.com/pliurh/upgrade_poc.git  /home/centos/upgrade_poc
         source /home/centos/upgrade_poc/overcloudrc
         openstack stack create -t /home/centos/upgrade_poc/vnf.yaml -e /home/centos/upgrade_poc/lib/env_a.yaml --wait vnf-a
