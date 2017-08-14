@@ -1,4 +1,4 @@
 parameter_defaults:
   traffic_network_name: traffic_network_a
   traffic_network_cidr: 192.168.10.0/24
-  
+  image: centos_1
